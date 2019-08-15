@@ -25,12 +25,15 @@ import org.apache.ibatis.reflection.Reflector;
  */
 public class MethodInvoker implements Invoker {
 
+  /** getting/setting 方法对应字段的 class 类型 */
   private final Class<?> type;
+  /** 要执行的方法 */
   private final Method method;
 
+  /** 构造函数 */
   public MethodInvoker(Method method) {
     this.method = method;
-
+    /* 判断是 getting/setting,并初始化 type */
     if (method.getParameterTypes().length == 1) {
       type = method.getParameterTypes()[0];
     } else {
@@ -41,9 +44,12 @@ public class MethodInvoker implements Invoker {
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
     try {
+      /* 尝试调用方法 */
       return method.invoke(target, args);
     } catch (IllegalAccessException e) {
+      /* 检查是否可以控制成员访问。 */
       if (Reflector.canControlMemberAccessible()) {
+        /* 设置方法可以访问并调用 */
         method.setAccessible(true);
         return method.invoke(target, args);
       } else {

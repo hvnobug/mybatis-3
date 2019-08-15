@@ -27,6 +27,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public class CollectionWrapper implements ObjectWrapper {
 
+  /** collection 类型 */
   private final Collection<Object> object;
 
   public CollectionWrapper(MetaObject metaObject, Collection<Object> object) {

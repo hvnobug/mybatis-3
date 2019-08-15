@@ -48,33 +48,44 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+    /* 获得需要创建的类 */
     Class<?> classToCreate = resolveInterface(type);
     // we know types are assignable
+    /* 创建指定类的对象 */
     return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
   }
 
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
+      /* 默认无参构造器 */
       if (constructorArgTypes == null || constructorArgs == null) {
         constructor = type.getDeclaredConstructor();
         try {
           return constructor.newInstance();
         } catch (IllegalAccessException e) {
+          /* 检查是否可以控制成员访问。 */
           if (Reflector.canControlMemberAccessible()) {
             constructor.setAccessible(true);
+            /* 继续通过特定构造器创建实例 */
             return constructor.newInstance();
           } else {
             throw e;
           }
         }
       }
+      /* 特定构造器 */
+
+      /* 根据参数类型获取对应构造器 */
       constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
       try {
+        /* 尝试通过特定构造器创建实例 */
         return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
       } catch (IllegalAccessException e) {
+        /* 检查是否可以控制成员访问。 */
         if (Reflector.canControlMemberAccessible()) {
           constructor.setAccessible(true);
+          /* 继续通过特定构造器创建实例 */
           return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
         } else {
           throw e;
@@ -95,7 +106,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
       classToCreate = ArrayList.class;
     } else if (type == Map.class) {
       classToCreate = HashMap.class;
-    } else if (type == SortedSet.class) { // issue #510 Collections Support
+    } else if (type == SortedSet.class) {
       classToCreate = TreeSet.class;
     } else if (type == Set.class) {
       classToCreate = HashSet.class;

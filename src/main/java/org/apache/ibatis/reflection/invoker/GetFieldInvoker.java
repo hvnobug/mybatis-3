@@ -23,8 +23,11 @@ import org.apache.ibatis.reflection.Reflector;
  * @author Clinton Begin
  */
 public class GetFieldInvoker implements Invoker {
+
+  /** 对应的字段 */
   private final Field field;
 
+  /** 构造函数 */
   public GetFieldInvoker(Field field) {
     this.field = field;
   }
@@ -32,9 +35,12 @@ public class GetFieldInvoker implements Invoker {
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException {
     try {
+      /* 尝试获取字段值 */
       return field.get(target);
     } catch (IllegalAccessException e) {
+      /* 检查是否可以控制成员访问。 */
       if (Reflector.canControlMemberAccessible()) {
+        /* 设置字段可以访问并获取字段值 */
         field.setAccessible(true);
         return field.get(target);
       } else {

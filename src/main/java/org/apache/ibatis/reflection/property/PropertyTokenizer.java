@@ -21,12 +21,22 @@ import java.util.Iterator;
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+
+  /** 当前字符串 */
   private String name;
+  /** 索引的 name ，因为 name 如果存在 index 会被更改 */
   private final String indexedName;
+  /** 索引 */
   private String index;
+  /** 剩余字符串 */
   private final String children;
 
+  /**
+   * 构造器
+   * @param fullname
+   */
   public PropertyTokenizer(String fullname) {
+    /* 查找 fullname 中'.'的位置来初始化 name、children */
     int delim = fullname.indexOf('.');
     if (delim > -1) {
       name = fullname.substring(0, delim);
@@ -35,7 +45,9 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
       name = fullname;
       children = null;
     }
+    /* 记录当前 name */
     indexedName = name;
+    /* 若存在 [ ，则获得 index ，并修改 name 。*/
     delim = name.indexOf('[');
     if (delim > -1) {
       index = name.substring(delim + 1, name.length() - 1);
@@ -60,16 +72,19 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
   }
 
   @Override
+  /* 是否可以继续迭代 */
   public boolean hasNext() {
     return children != null;
   }
 
   @Override
+  /* 迭代获得下一个 PropertyTokenizer 对象 */
   public PropertyTokenizer next() {
     return new PropertyTokenizer(children);
   }
 
   @Override
+  /* 不支持移除 */
   public void remove() {
     throw new UnsupportedOperationException("Remove is not supported, as it has no meaning in the context of properties.");
   }

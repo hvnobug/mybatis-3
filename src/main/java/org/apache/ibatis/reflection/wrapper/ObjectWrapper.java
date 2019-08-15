@@ -26,30 +26,43 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public interface ObjectWrapper {
 
+  /** 根据属性分词器获取值 */
   Object get(PropertyTokenizer prop);
 
+  /** 根据属性分词器设置值 */
   void set(PropertyTokenizer prop, Object value);
 
+  /** 根据表达式获取属性,可设置是否下划线转驼峰 */
   String findProperty(String name, boolean useCamelCaseMapping);
 
+  /** MetaClass.getGetterNames() */
   String[] getGetterNames();
 
+  /** MetaClass.getSetterNames() */
   String[] getSetterNames();
 
+  /** MetaClass.getSetterType() */
   Class<?> getSetterType(String name);
 
+  /** MetaClass.getGetterType() */
   Class<?> getGetterType(String name);
 
+  /** MetaClass.hasSetter() */
   boolean hasSetter(String name);
 
+  /** MetaClass.hasGetter() */
   boolean hasGetter(String name);
 
+  /** MetaObject.forObject(Object, ObjectFactory, ObjectWrapperFactory, ReflectorFactory) */
   MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory);
 
+  /** 是否是 Collection */
   boolean isCollection();
 
+  /** 添加元素到集合 */
   void add(Object element);
 
+  /** 添加多个元素到集合 */
   <E> void addAll(List<E> element);
 
 }

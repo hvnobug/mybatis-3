@@ -29,15 +29,20 @@ public class ArrayUtil {
    *          The object to get a hash code for. May be an array or <code>null</code>.
    * @return A hash code of {@code obj} or 0 if {@code obj} is <code>null</code>
    */
+
+  /** 获取对象的哈希值 */
   public static int hashCode(Object obj) {
+    /* 🈳️ */
     if (obj == null) {
       // for consistency with Arrays#hashCode() and Objects#hashCode()
       return 0;
     }
     final Class<?> clazz = obj.getClass();
+    /* 普通类 */
     if (!clazz.isArray()) {
       return obj.hashCode();
     }
+    /* 取得数组的 Class 对象 */
     final Class<?> componentType = clazz.getComponentType();
     if (long.class.equals(componentType)) {
       return Arrays.hashCode((long[]) obj);
@@ -76,6 +81,7 @@ public class ArrayUtil {
    *          The right hand object to compare. May be an array or <code>null</code>
    * @return <code>true</code> if two objects are equal; <code>false</code> otherwise.
    */
+  /** 判断两个对象是否相等 */
   public static boolean equals(Object thisObj, Object thatObj) {
     if (thisObj == null) {
       return thatObj == null;
@@ -119,6 +125,7 @@ public class ArrayUtil {
    *          An object. May be an array or <code>null</code>.
    * @return String representation of the {@code obj}.
    */
+  /* 将一个对象转换为 String 字符串 */
   public static String toString(Object obj) {
     if (obj == null) {
       return "null";

@@ -23,11 +23,13 @@ import org.apache.ibatis.reflection.ReflectionException;
  */
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory {
 
+  /** 不包装了指定对象 */
   @Override
   public boolean hasWrapperFor(Object object) {
     return false;
   }
 
+  /** 不应该调用DefaultObjectWrapperFactory来提供ObjectWrapper */
   @Override
   public ObjectWrapper getWrapperFor(MetaObject metaObject, Object object) {
     throw new ReflectionException("The DefaultObjectWrapperFactory should never be called to provide an ObjectWrapper.");

@@ -45,10 +45,15 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  /* XML被解析后，Document对象 */
   private final Document document;
+  /** 是否校验XML*/
   private boolean validation;
+  /** XML 实体解析器 */
   private EntityResolver entityResolver;
+  /** 变量 Properties 对象，用来替换需要动态配置的属性值 */
   private Properties variables;
+  /** 用于查询XML中的节点和元素 */
   private XPath xpath;
 
   public XPathParser(String xml) {

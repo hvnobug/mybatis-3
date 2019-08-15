@@ -32,31 +32,48 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
  */
 public class MetaObject {
 
+  /** 原始对象 */
   private final Object originalObject;
+
+  /** 封装过堵对象 */
   private final ObjectWrapper objectWrapper;
   private final ObjectFactory objectFactory;
   private final ObjectWrapperFactory objectWrapperFactory;
   private final ReflectorFactory reflectorFactory;
 
+  /**
+   * 构造函数
+   */
   private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
+    /* 初始化成员变量 */
     this.originalObject = object;
     this.objectFactory = objectFactory;
     this.objectWrapperFactory = objectWrapperFactory;
     this.reflectorFactory = reflectorFactory;
 
+    /* 原始对象是否是 ObjectWrapper 类型 */
     if (object instanceof ObjectWrapper) {
       this.objectWrapper = (ObjectWrapper) object;
-    } else if (objectWrapperFactory.hasWrapperFor(object)) {
+    }
+    /* objectWrapperFactory 是否包装类原始对象 */
+    else if (objectWrapperFactory.hasWrapperFor(object)) {
       this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
-    } else if (object instanceof Map) {
+    }
+    /* 原始对象是否是 Map 类型 */
+    else if (object instanceof Map) {
       this.objectWrapper = new MapWrapper(this, (Map) object);
-    } else if (object instanceof Collection) {
+    }
+    /* 原始对象是否是 Collection 类型 */
+    else if (object instanceof Collection) {
       this.objectWrapper = new CollectionWrapper(this, (Collection) object);
-    } else {
+    }
+    /* 作为普通对象处理 */
+    else {
       this.objectWrapper = new BeanWrapper(this, object);
     }
   }
 
+  /** 构造 MetaObject 对象 */
   public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
     if (object == null) {
       return SystemMetaObject.NULL_META_OBJECT;
@@ -110,8 +127,11 @@ public class MetaObject {
   }
 
   public Object getValue(String name) {
+    /* 创建属性分词器 */
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    /* 是否有子表达式 */
     if (prop.hasNext()) {
+      /* 创建 MetaObject 对象 */
       MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
         return null;
@@ -119,13 +139,17 @@ public class MetaObject {
         return metaValue.getValue(prop.getChildren());
       }
     } else {
+      /* 无子表达式,返回获取到的值 */
       return objectWrapper.get(prop);
     }
   }
 
   public void setValue(String name, Object value) {
+    /* 创建属性分词器 */
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    /* 是否有子表达式 */
     if (prop.hasNext()) {
+      /* 创建 MetaObject 对象 */
       MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
         if (value == null) {
@@ -137,12 +161,15 @@ public class MetaObject {
       }
       metaValue.setValue(prop.getChildren(), value);
     } else {
+      /* 无子表达式,设置属性值 */
       objectWrapper.set(prop, value);
     }
   }
 
   public MetaObject metaObjectForProperty(String name) {
+    /* 获取 name 属性的值 */
     Object value = getValue(name);
+    /* 创建 MetaObject 对象 */
     return MetaObject.forObject(value, objectFactory, objectWrapperFactory, reflectorFactory);
   }
 
