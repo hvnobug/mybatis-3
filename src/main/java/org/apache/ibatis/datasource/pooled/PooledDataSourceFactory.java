@@ -22,6 +22,9 @@ import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
  */
 public class PooledDataSourceFactory extends UnpooledDataSourceFactory {
 
+  /**
+   * 使用 PooledDataSource 数据源
+   */
   public PooledDataSourceFactory() {
     this.dataSource = new PooledDataSource();
   }

@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2019 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.datasource.pooled;
 
@@ -28,24 +28,56 @@ import org.apache.ibatis.reflection.ExceptionUtil;
  */
 class PooledConnection implements InvocationHandler {
 
+  /**
+   * 关闭 Connection 方法名
+   */
   private static final String CLOSE = "close";
-  private static final Class<?>[] IFACES = new Class<?>[] { Connection.class };
-
+  /**
+   * DK Proxy 的接口
+   */
+  private static final Class<?>[] IFACES = new Class<?>[]{Connection.class};
+  /**
+   * 哈希值
+   */
   private final int hashCode;
+  /**
+   * 池化连接数据源
+   */
   private final PooledDataSource dataSource;
+  /**
+   * 真实的数据库连接
+   */
   private final Connection realConnection;
+  /**
+   * 数据库连接代理
+   */
   private final Connection proxyConnection;
+  /**
+   * 从连接池中，获取走的时间戳
+   */
   private long checkoutTimestamp;
+  /**
+   * 对象创建时间戳
+   */
   private long createdTimestamp;
+  /**
+   * 最后使用的时间戳
+   */
   private long lastUsedTimestamp;
+  /**
+   * 连接的标识, PooledDataSource.expectedConnectionTypeCode
+   */
   private int connectionTypeCode;
+  /**
+   * 是否有效
+   */
   private boolean valid;
 
   /**
-   * Constructor for SimplePooledConnection that uses the Connection and PooledDataSource passed in.
+   * 使用传入的 Connection 和 PooledDataSource 的 SimplePooledConnection  构造函数。
    *
-   * @param connection - the connection that is to be presented as a pooled connection
-   * @param dataSource - the dataSource that the connection is from
+   * @param connection 要表示为池连接的 connection
+   * @param dataSource 数据源对象
    */
   public PooledConnection(Connection connection, PooledDataSource dataSource) {
     this.hashCode = connection.hashCode();
@@ -53,7 +85,9 @@ class PooledConnection implements InvocationHandler {
     this.dataSource = dataSource;
     this.createdTimestamp = System.currentTimeMillis();
     this.lastUsedTimestamp = System.currentTimeMillis();
+    /* 默认有效 */
     this.valid = true;
+    /* 生成代理数据库连接对象 */
     this.proxyConnection = (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), IFACES, this);
   }
 
@@ -231,17 +265,22 @@ class PooledConnection implements InvocationHandler {
    */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    /* 获取执行方法名 */
     String methodName = method.getName();
+    /* 是否为 CLose 方法 */
     if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
       dataSource.pushConnection(this);
       return null;
     }
     try {
+      /* 如果声明该方法的不是 Object */
       if (!Object.class.equals(method.getDeclaringClass())) {
         // issue #579 toString() should never fail
         // throw an SQLException instead of a Runtime
+        /* 检查连接是否可用 */
         checkConnection();
       }
+      /* 调用方法 */
       return method.invoke(realConnection, args);
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);

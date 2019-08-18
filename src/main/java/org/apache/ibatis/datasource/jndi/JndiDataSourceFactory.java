@@ -31,23 +31,30 @@ import org.apache.ibatis.datasource.DataSourceFactory;
  */
 public class JndiDataSourceFactory implements DataSourceFactory {
 
+  /** 用来在 InitialContext 中寻找上下文 */
   public static final String INITIAL_CONTEXT = "initial_context";
+
+  /** 引用数据源实例位置的上下文的路径 */
   public static final String DATA_SOURCE = "data_source";
+
+  /* Env 属性前缀 */
   public static final String ENV_PREFIX = "env.";
 
+  /** 数据源对象 */
   private DataSource dataSource;
 
   @Override
   public void setProperties(Properties properties) {
     try {
       InitialContext initCtx;
+      /* 获取 Env 属性,并初始化 InitialContext */
       Properties env = getEnvProperties(properties);
       if (env == null) {
         initCtx = new InitialContext();
       } else {
         initCtx = new InitialContext(env);
       }
-
+      /* 获取 InitialContext 中 获取 Datasource */
       if (properties.containsKey(INITIAL_CONTEXT)
           && properties.containsKey(DATA_SOURCE)) {
         Context ctx = (Context) initCtx.lookup(properties.getProperty(INITIAL_CONTEXT));
