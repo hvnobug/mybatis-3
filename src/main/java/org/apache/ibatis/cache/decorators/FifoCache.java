@@ -27,8 +27,17 @@ import org.apache.ibatis.cache.Cache;
  */
 public class FifoCache implements Cache {
 
+  /**
+   * 装饰的 Cache 对象
+   */
   private final Cache delegate;
+  /**
+   * 双端队列，记录缓存键的添加
+   */
   private final Deque<Object> keyList;
+  /**
+   * 队列上限
+   */
   private int size;
 
   public FifoCache(Cache delegate) {
@@ -53,6 +62,7 @@ public class FifoCache implements Cache {
 
   @Override
   public void putObject(Object key, Object value) {
+    /* 循环 keyList */
     cycleKeyList(key);
     delegate.putObject(key, value);
   }
@@ -75,6 +85,7 @@ public class FifoCache implements Cache {
 
   private void cycleKeyList(Object key) {
     keyList.addLast(key);
+    /* 判断队列是否超出上限,若超出上限移除队列中第一个元素(先进先出) */
     if (keyList.size() > size) {
       Object oldestKey = keyList.removeFirst();
       delegate.removeObject(oldestKey);

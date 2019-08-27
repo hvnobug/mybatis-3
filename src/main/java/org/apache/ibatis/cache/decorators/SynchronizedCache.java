@@ -22,6 +22,9 @@ import org.apache.ibatis.cache.Cache;
  */
 public class SynchronizedCache implements Cache {
 
+  /**
+   * 装饰的 Cache
+   */
   private final Cache delegate;
 
   public SynchronizedCache(Cache delegate) {

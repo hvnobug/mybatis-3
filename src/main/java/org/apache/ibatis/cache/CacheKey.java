@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2019 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.cache;
 
@@ -29,16 +29,39 @@ public class CacheKey implements Cloneable, Serializable {
 
   private static final long serialVersionUID = 1146682552656046210L;
 
+  /**
+   * 默认空缓存 key
+   */
   public static final CacheKey NULL_CACHE_KEY = new NullCacheKey();
 
+  /**
+   * 默认 multiplier 的值
+   */
   private static final int DEFAULT_MULTIPLYER = 37;
+  /**
+   * 默认 hashcode 值
+   */
   private static final int DEFAULT_HASHCODE = 17;
-
+  /**
+   * hashcode 求值的系数
+   */
   private final int multiplier;
+  /**
+   * 缓存键的 hashcode
+   */
   private int hashcode;
+  /**
+   * 校验和
+   */
   private long checksum;
+  /**
+   * update(Object) 的数量
+   */
   private int count;
   // 8/21/2017 - Sonarlint flags this as needing to be marked transient.  While true if content is not serializable, this is not always true and thus should not be marked transient.
+  /**
+   * 计算 hashcode 的对象的集合
+   */
   private List<Object> updateList;
 
   public CacheKey() {
@@ -58,14 +81,16 @@ public class CacheKey implements Cloneable, Serializable {
   }
 
   public void update(Object object) {
+    /* 获取 object 的哈希值 */
     int baseHashCode = object == null ? 1 : ArrayUtil.hashCode(object);
-
+    /* 计数+1 */
     count++;
+    /* 计算校验和 */
     checksum += baseHashCode;
     baseHashCode *= count;
-
+    /* 计算 cacheKey 的哈希值 */
     hashcode = multiplier * hashcode + baseHashCode;
-
+    /* 将 object 添加到 updateList 集合中 */
     updateList.add(object);
   }
 

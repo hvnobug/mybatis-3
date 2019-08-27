@@ -29,9 +29,21 @@ import org.apache.ibatis.cache.Cache;
  * @author Clinton Begin
  */
 public class SoftCache implements Cache {
+  /**
+   * 强引用的键的队列
+   */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+  /**
+   * 被 GC 回收的 SoftEntry 集合，避免被 GC。
+   */
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
+  /**
+   * 装饰的 Cache 对象
+   */
   private final Cache delegate;
+  /**
+   * hardLinksToAvoidGarbageCollection 的大小
+   */
   private int numberOfHardLinks;
 
   public SoftCache(Cache delegate) {
@@ -100,6 +112,9 @@ public class SoftCache implements Cache {
     delegate.clear();
   }
 
+  /**
+   * 移除已被 GC 回收的 SoftEntry
+   */
   private void removeGarbageCollectedItems() {
     SoftEntry sv;
     while ((sv = (SoftEntry) queueOfGarbageCollectedEntries.poll()) != null) {

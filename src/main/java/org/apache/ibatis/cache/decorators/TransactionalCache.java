@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2019 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.cache.decorators;
 
@@ -39,9 +39,22 @@ public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
+  /**
+   * 装饰的 Cache
+   */
   private final Cache delegate;
+  /**
+   * 标志缓存是否在 commit 时提交,初始值为 false
+   * 当执行 commit 操作,会清楚 delegate 缓存,并设置为 true
+   */
   private boolean clearOnCommit;
+  /**
+   * 待提交的 KV 映射
+   */
   private final Map<Object, Object> entriesToAddOnCommit;
+  /**
+   * 查找不到的 KEY 集合
+   */
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
@@ -64,11 +77,14 @@ public class TransactionalCache implements Cache {
   @Override
   public Object getObject(Object key) {
     // issue #116
+    /* 获取缓存 */
     Object object = delegate.getObject(key);
+    /* 如果未从缓存中读取到对应数据,将 key 加入 entriesMissedInCache 集合 */
     if (object == null) {
       entriesMissedInCache.add(key);
     }
     // issue #146
+    /* 如果 clearOnCommit 为 true ，表示处于持续清空状态，则返回 null */
     if (clearOnCommit) {
       return null;
     } else {
@@ -78,6 +94,7 @@ public class TransactionalCache implements Cache {
 
   @Override
   public void putObject(Object key, Object object) {
+    /* 事务未提交时,暂存 KV 到 entriesToAddOnCommit 中 */
     entriesToAddOnCommit.put(key, object);
   }
 
@@ -88,20 +105,27 @@ public class TransactionalCache implements Cache {
 
   @Override
   public void clear() {
+    /* clearOnCommit 设为 true */
     clearOnCommit = true;
+    /* 清空 entriesToAddOnCommit */
     entriesToAddOnCommit.clear();
   }
 
   public void commit() {
+    /* 如果 clearOnCommit 为 true ，则清空 delegate 缓存 */
     if (clearOnCommit) {
       delegate.clear();
     }
+    /* 将 entriesToAddOnCommit、entriesMissedInCache 刷入 delegate 中 */
     flushPendingEntries();
+    /* 重置缓存 */
     reset();
   }
 
   public void rollback() {
+    /* 从 delegate 移除出 entriesMissedInCache */
     unlockMissedEntries();
+    /* 重置缓存 */
     reset();
   }
 
@@ -128,7 +152,7 @@ public class TransactionalCache implements Cache {
         delegate.removeObject(entry);
       } catch (Exception e) {
         log.warn("Unexpected exception while notifiying a rollback to the cache adapter."
-            + "Consider upgrading your cache adapter to the latest version.  Cause: " + e);
+          + "Consider upgrading your cache adapter to the latest version.  Cause: " + e);
       }
     }
   }

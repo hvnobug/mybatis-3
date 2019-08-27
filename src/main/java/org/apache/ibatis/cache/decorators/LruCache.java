@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2019 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.cache.decorators;
 
@@ -27,8 +27,18 @@ import org.apache.ibatis.cache.Cache;
  */
 public class LruCache implements Cache {
 
+  /**
+   * 装饰的 Cache 对象
+   */
   private final Cache delegate;
+
+  /**
+   * 基于 LinkedHashMap 实现 Lru 淘汰机制
+   */
   private Map<Object, Object> keyMap;
+  /**
+   * 最老的键，即要被淘汰的
+   */
   private Object eldestKey;
 
   public LruCache(Cache delegate) {
@@ -50,6 +60,11 @@ public class LruCache implements Cache {
     keyMap = new LinkedHashMap<Object, Object>(size, .75F, true) {
       private static final long serialVersionUID = 4267176411845948333L;
 
+      /**
+       * 决定是否要移除最老的 entry
+       * @param eldest 最老的
+       * @return 是否要移除
+       */
       @Override
       protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
         boolean tooBig = size() > size;
